@@ -1,8 +1,10 @@
-import cloudscraper
-from bs4 import BeautifulSoup
 import json
 import os
+import random
+import time
 from datetime import datetime
+from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
 
 # Configuration: Site URLs and CSS Selectors
 SITES = {
@@ -29,76 +31,56 @@ SITES = {
 }
 
 def clean_price(price_str):
-    """Removes currency symbols and formatting to return a float."""
-    if not price_str:
-        return None
-    # Keep digits and decimal points
+    if not price_str: return None
     cleaned = ''.join(c for c in price_str if c.isdigit() or c == '.')
     try:
         return float(cleaned)
-    except ValueError:
+    except:
         return None
 
 def fetch_prices():
-    scraper = cloudscraper.create_scraper(
-        browser={'browser': 'chrome', 'platform': 'windows', 'mobile': False}
-    )
+    current_results = {"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"), "retailers": {}}
     
-    current_results = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "retailers": {}
-    }
+    with sync_playwright() as p:
+        # Launch browser in headless mode
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        )
 
-    for name, info in SITES.items():
-        try:
-            print(f"Checking {name}...")
-            response = scraper.get(info["url"], timeout=15)
+        for name, info in SITES.items():
+            print(f"Scraping {name}...")
+            page = context.new_page()
+            stealth_sync(page) # Apply stealth to hide Playwright
             
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, 'html.parser')
-                element = soup.select_one(info["selector"])
+            try:
+                # Random delay to mimic human behavior
+                time.sleep(random.uniform(2, 5)) 
+                page.goto(info["url"], wait_until="networkidle", timeout=60000)
                 
+                element = page.wait_for_selector(info["selector"], timeout=10000)
                 if element:
-                    price = clean_price(element.get_text())
-                    current_results["retailers"][name] = price
+                    raw_price = element.inner_text()
+                    current_results["retailers"][name] = clean_price(raw_price)
                 else:
-                    # Costco often hides price behind login
-                    if name == "Costco" and "sign in" in response.text.lower():
-                        current_results["retailers"][name] = "Member Only"
-                    else:
-                        current_results["retailers"][name] = "Out of Stock/Hidden"
-            else:
-                current_results["retailers"][name] = f"Error {response.status_code}"
-                
-        except Exception as e:
-            print(f"Failed to scrape {name}: {e}")
-            current_results["retailers"][name] = "Scrape Failed"
-
+                    current_results["retailers"][name] = "Not Found"
+            except Exception as e:
+                print(f"Failed {name}: {str(e)[:50]}")
+                current_results["retailers"][name] = "Timeout/Block"
+            
+            page.close()
+        
+        browser.close()
     return current_results
 
-def update_data_file(new_data):
-    filename = 'freezer_prices.json'
-    
-    # Read existing data
-    if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            try:
-                history = json.load(f)
-            except json.JSONDecodeError:
-                history = []
-    else:
-        history = []
-
-    # Append new results and save
+def update_data(new_data):
+    file = 'freezer_prices.json'
+    history = json.load(open(file)) if os.path.exists(file) else []
     history.append(new_data)
-    
-    # Keep only the last 30 entries to prevent the file from getting too big
-    history = history[-30:]
-
-    with open(filename, 'w') as f:
-        json.dump(history, f, indent=4)
+    with open(file, 'w') as f:
+        json.dump(history[-30:], f, indent=4)
 
 if __name__ == "__main__":
-    latest_prices = fetch_prices()
-    update_data_file(latest_prices)
-    print("Update Complete.")
+    data = fetch_prices()
+    update_data(data)
+    print("Done!")
