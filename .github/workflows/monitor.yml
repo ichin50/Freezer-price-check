@@ -1,0 +1,39 @@
+name: Freezer Price Monitor
+
+on:
+  push:
+    branches: [ main ]  # Trigger immediately when you save this file
+  schedule:
+    - cron: '0 13 * * *' # Runs at 8:00 AM Central Time every day
+  workflow_dispatch:     # Enables the "Run workflow" manual button
+
+permissions:
+  contents: write       # IMPORTANT: Gives the bot permission to save price data
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run price monitor
+        run: python monitor_freezer.py
+
+      - name: Commit and Push results
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add freezer_prices.json
+          git commit -m "chore: update freezer prices [skip ci]" || echo "No changes to commit"
+          git push
