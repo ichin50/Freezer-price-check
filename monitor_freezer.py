@@ -84,3 +84,23 @@ if __name__ == "__main__":
     data = fetch_prices()
     update_data(data)
     print("Done!")
+
+# Add this at the bottom of your script, after update_data(data)
+if __name__ == "__main__":
+    data = fetch_prices()
+    update_data(data)
+    
+    # NEW: Trigger an alert if price is below $729
+    TARGET_PRICE = 729.0
+    found_deal = False
+    
+    for retailer, price in data["retailers"].items():
+        if isinstance(price, (int, float)) and price < TARGET_PRICE:
+            print(f"🚨 DEAL FOUND: {retailer} has it for ${price}!")
+            found_deal = True
+    
+    if found_deal:
+        # This intentionally fails the script so GitHub emails you
+        exit(1) 
+    else:
+        print("No price drops detected today.")
