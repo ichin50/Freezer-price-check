@@ -1,1 +1,11 @@
-[]
+[
+    {
+        "timestamp": "2026-04-18 07:11",
+        "retailers": {
+            "Frigidaire": "Timeout/Block",
+            "Home Depot": "Timeout/Block",
+            "Best Buy": "Timeout/Block",
+            "Lowe's": "Timeout/Block"
+        }
+    }
+]
