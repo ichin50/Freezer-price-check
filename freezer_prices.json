@@ -1,12 +1,1 @@
-[
-    {
-        "timestamp": "2026-04-18 06:47",
-        "retailers": {
-            "Frigidaire": "Scrape Failed",
-            "Home Depot": "Error 403",
-            "Best Buy": "Scrape Failed",
-            "Lowe's": "Error 403",
-            "Costco": "Error 403"
-        }
-    }
-]
+[]
