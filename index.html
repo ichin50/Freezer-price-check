@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Freezer Price Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background: #f4f4f9; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Frigidaire FFUE1626AV Price History</h1>
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <script>
+        fetch('freezer_prices.json')
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(entry => entry.timestamp);
+                const retailers = Object.keys(data[0].retailers);
+                
+                const datasets = retailers.map(retailer => ({
+                    label: retailer,
+                    data: data.map(entry => entry.retailers[retailer]),
+                    borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+                    fill: false
+                }));
+
+                new Chart(document.getElementById('priceChart'), {
+                    type: 'line',
+                    data: { labels: labels, datasets: datasets },
+                    options: { responsive: true, scales: { y: { beginAtZero: false } } }
+                });
+            });
+    </script>
+</body>
+</html>
