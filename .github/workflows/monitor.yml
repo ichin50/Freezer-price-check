@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '0 13 * * *' # Runs at 8:00 AM Central Time
+    - cron: '0 13 * * *' # 8:00 AM Central Time (Round Rock, TX)
   workflow_dispatch:
 
 permissions:
@@ -12,7 +12,13 @@ permissions:
 
 jobs:
   price_check:
-    runs-on: ubuntu-latest
+    # Uses 22.04 for better stability with Playwright than the brand new 24.04
+    runs-on: ubuntu-22.04 
+    
+    env:
+      # Clears the warning about actions needing to run on Node 24
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,7 +32,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # The --with-deps flag installs the necessary Linux libraries for Chromium
+          # The --with-deps flag is critical for the GitHub server to 'see' the browser
           python -m playwright install chromium --with-deps
 
       - name: Run price monitor
