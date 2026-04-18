@@ -2,13 +2,13 @@ name: Freezer Price Monitor
 
 on:
   push:
-    branches: [ main ]  # Runs every time you save/push code
+    branches: [ main ]
   schedule:
-    - cron: '0 13 * * *' # 13:00 UTC is exactly 8:00 AM in Round Rock, TX
-  workflow_dispatch:     # Keeps your manual "Run workflow" button active
+    - cron: '0 13 * * *' # Runs at 8:00 AM Central Time
+  workflow_dispatch:
 
 permissions:
-  contents: write       # Essential for saving data back to your repo
+  contents: write
 
 jobs:
   price_check:
@@ -26,7 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # This installs the actual Chromium browser used by Playwright
+          # The --with-deps flag installs the necessary Linux libraries for Chromium
           python -m playwright install chromium --with-deps
 
       - name: Run price monitor
@@ -37,6 +37,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add freezer_prices.json
-          # || echo "No changes" prevents the script from failing if prices didn't change
           git commit -m "chore: update freezer prices [skip ci]" || echo "No changes to commit"
           git push
