@@ -124,5 +124,14 @@
             "Best Buy": "Timeout/Block",
             "Lowe's": "Timeout/Block"
         }
+    },
+    {
+        "timestamp": "2026-05-01 16:13",
+        "retailers": {
+            "Frigidaire": "Timeout/Block",
+            "Home Depot": "Timeout/Block",
+            "Best Buy": "Timeout/Block",
+            "Lowe's": "Timeout/Block"
+        }
     }
 ]
