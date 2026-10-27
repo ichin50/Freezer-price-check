@@ -1,14 +1,5 @@
 [
     {
-        "timestamp": "2026-09-27 17:20",
-        "retailers": {
-            "Frigidaire": "Timeout/Block",
-            "Home Depot": "Timeout/Block",
-            "Best Buy": "Timeout/Block",
-            "Lowe's": "Timeout/Block"
-        }
-    },
-    {
         "timestamp": "2026-09-28 19:53",
         "retailers": {
             "Frigidaire": "Timeout/Block",
@@ -262,6 +253,15 @@
     },
     {
         "timestamp": "2026-10-26 19:02",
+        "retailers": {
+            "Frigidaire": "Timeout/Block",
+            "Home Depot": "Timeout/Block",
+            "Best Buy": "Timeout/Block",
+            "Lowe's": "Timeout/Block"
+        }
+    },
+    {
+        "timestamp": "2026-10-27 18:27",
         "retailers": {
             "Frigidaire": "Timeout/Block",
             "Home Depot": "Timeout/Block",
